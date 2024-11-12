@@ -18,7 +18,6 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.geysermc.floodgate.api.FloodgateApi;
 
-import java.util.UUID;
 import java.util.*;
 
 public class SpawnerListener implements Listener {
@@ -71,14 +70,14 @@ public class SpawnerListener implements Listener {
             creatureSpawner.update();
             Location loc = block.getLocation();
             loc.getWorld().spawnParticle(
-                    Particle.WITCH,
+                    Particle.SPELL_WITCH,
                     loc.clone().add(0.5, 0.5, 0.5),
                     50, 0.5, 0.5, 0.5, 0
             );
         } else {
             Location loc = block.getLocation();
             loc.getWorld().spawnParticle(
-                    Particle.WITCH,
+                    Particle.SPELL_WITCH,
                     loc.clone().add(0.5, 0.5, 0.5),
                     50, 0.5, 0.5, 0.5, 0
             );
@@ -167,7 +166,7 @@ public class SpawnerListener implements Listener {
                     // Play stack sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
                     // Show particles
-                    block.getWorld().spawnParticle(Particle.HAPPY_VILLAGER,
+                    block.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,
                             block.getLocation().add(0.5, 0.5, 0.5),
                             10, 0.3, 0.3, 0.3, 0);
                 }
@@ -620,7 +619,7 @@ public class SpawnerListener implements Listener {
 
                                 // Hiệu ứng sửa chữa
                                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.5f, 1.0f);
-                                player.spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation().add(0, 1, 0), 5);
+                                player.spawnParticle(Particle.VILLAGER_HAPPY, player.getLocation().add(0, 1, 0), 5);
                             }
                         }
                     }

@@ -1,7 +1,7 @@
 name: SmartSpawner
 version: '1.0.1'
 main: me.nighter.smartSpawner.SmartSpawner
-api-version: '1.21'
+api-version: '1.20'
 author: Nighter
 softdepend: [floodgate]
 
