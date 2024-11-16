@@ -6,6 +6,7 @@ import me.nighter.smartSpawner.utils.PagedSpawnerLootHolder;
 import me.nighter.smartSpawner.utils.SpawnerData;
 import me.nighter.smartSpawner.utils.SpawnerMenuHolder;
 import me.nighter.smartSpawner.utils.VirtualInventory;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;

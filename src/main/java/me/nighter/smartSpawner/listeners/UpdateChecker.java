@@ -3,18 +3,24 @@ package me.nighter.smartSpawner.listeners;
 import me.nighter.smartSpawner.SmartSpawner;
 import me.nighter.smartSpawner.managers.ConfigManager;
 import me.nighter.smartSpawner.managers.LanguageManager;
+
+import io.github.projectunified.minelib.scheduler.common.util.task.BukkitTask;
+import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
+import io.github.projectunified.minelib.scheduler.common.task.Task;
+import io.github.projectunified.minelib.scheduler.entity.EntityScheduler;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -65,8 +71,8 @@ public class UpdateChecker implements Listener {
 
         // Schedule periodic checks
         long intervalTicks = configManager.getUpdateCheckInterval() * 20L * 60L * 60L; // hours to ticks
-        updateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
-                () -> checkForUpdate().thenAccept(this::handleUpdateResult),
+        updateTask = (BukkitTask) GlobalScheduler.get(plugin).runTimer(() -> 
+                checkForUpdate().thenAccept(this::handleUpdateResult),
                 intervalTicks, // First check after interval
                 intervalTicks  // Repeat at interval
         );

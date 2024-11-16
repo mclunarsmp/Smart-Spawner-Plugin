@@ -5,6 +5,9 @@ import me.nighter.smartSpawner.utils.SpawnerData;
 import me.nighter.smartSpawner.managers.SpawnerManager;
 import me.nighter.smartSpawner.managers.ConfigManager;
 import me.nighter.smartSpawner.managers.LanguageManager;
+
+import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -315,7 +318,7 @@ public class SpawnerBreakHandler implements Listener {
         block.setType(Material.AIR);
         spawnerManager.removeSpawner(spawner.getSpawnerId());
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        GlobalScheduler.get(plugin).run( () -> {
             spawnerManager.saveSpawnerData();
             configManager.debug("Player " + player.getName() +
                     " broke spawner with ID: " + spawner.getSpawnerId());

@@ -1,9 +1,11 @@
 package me.nighter.smartSpawner.managers;
 
 import me.nighter.smartSpawner.utils.SupportedLanguage;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
@@ -421,6 +423,7 @@ public class LanguageManager {
         return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
+    @SuppressWarnings("unlikely-arg-type")
     public String getLocalizedMobName(EntityType type) {
         String cacheKey = "mob_" + type.name() + "_" + currentLanguage;
         String cachedName = messageCache.get(cacheKey);

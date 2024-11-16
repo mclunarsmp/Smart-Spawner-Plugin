@@ -51,6 +51,8 @@ public class GUIClickHandler implements Listener {
             case NUMBER_KEY:
                 event.setCancelled(true);
                 return;
+            default:
+                break;
         }
 
         Player player = (Player) event.getWhoClicked();
