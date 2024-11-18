@@ -3,13 +3,9 @@ package me.nighter.smartSpawner.managers;
 import me.nighter.smartSpawner.serializers.ItemStackSerializer;
 import me.nighter.smartSpawner.SmartSpawner;
 import me.nighter.smartSpawner.utils.SpawnerMenuHolder;
-import me.nighter.smartSpawner.utils.MenuTitleValidator;
 import me.nighter.smartSpawner.utils.PagedSpawnerLootHolder;
 import me.nighter.smartSpawner.utils.SpawnerData;
 import me.nighter.smartSpawner.utils.VirtualInventory;
-
-import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
-
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -88,6 +84,7 @@ public class SpawnerManager {
         if (spawner != null) {
             locationIndex.remove(new LocationKey(spawner.getSpawnerLocation()));
             spawners.remove(id);
+
         }
         deleteSpawnerFromFile(id);
     }
@@ -132,7 +129,7 @@ public class SpawnerManager {
     private void startSaveTask() {
         configManager.debug("Starting spawner data save task");
         int intervalSeconds = configManager.getSaveInterval();
-        GlobalScheduler.get(plugin).runTimer(this::saveSpawnerData, 0, intervalSeconds); // 5 phút
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::saveSpawnerData, 0, intervalSeconds); // 5 phút
     }
 
     public void backupSpawnerData() {
@@ -375,7 +372,7 @@ public class SpawnerManager {
             spawner.setLastSpawnTime(System.currentTimeMillis());
 
             // Cập nhật cho tất cả người chơi đang xem
-            GlobalScheduler.get(plugin).run(() -> {
+            Bukkit.getScheduler().runTask(plugin, () -> {
                 for (HumanEntity viewer : getViewersForSpawner(spawner)) {
                     if (viewer instanceof Player) {
                         Player player = (Player) viewer;
@@ -432,16 +429,13 @@ public class SpawnerManager {
 
     // Method để update GUI cho người chơi đang xem
     public void updateSpawnerGui(Player player, SpawnerData spawner, boolean forceUpdate) {
-        MenuTitleValidator validator = new MenuTitleValidator(languageManager);
         Inventory openInv = player.getOpenInventory().getTopInventory();
-        if (validator.isValidSpawnerMenu(player, spawner)) {
-            if (openInv.getHolder() instanceof SpawnerMenuHolder) {
-                SpawnerMenuHolder holder = (SpawnerMenuHolder) openInv.getHolder();
-                if (holder.getSpawnerData().getSpawnerId().equals(spawner.getSpawnerId()) || forceUpdate) {
-                    updateSpawnerInfoItem(openInv, spawner);
-                    updateExpItem(openInv, spawner);
-                    updateChestItem(openInv, spawner);
-                }
+        if (openInv.getHolder() instanceof SpawnerMenuHolder) {
+            SpawnerMenuHolder holder = (SpawnerMenuHolder) openInv.getHolder();
+            if (holder.getSpawnerData().getSpawnerId().equals(spawner.getSpawnerId()) || forceUpdate) {
+                updateSpawnerInfoItem(openInv, spawner);
+                updateExpItem(openInv, spawner);
+                updateChestItem(openInv, spawner);
             }
         }
     }

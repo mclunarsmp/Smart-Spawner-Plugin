@@ -4,17 +4,13 @@ import me.nighter.smartSpawner.SmartSpawner;
 import me.nighter.smartSpawner.managers.ConfigManager;
 import me.nighter.smartSpawner.managers.SpawnerManager;
 import me.nighter.smartSpawner.utils.SpawnerData;
-
-import io.github.projectunified.minelib.scheduler.common.util.task.BukkitTask;
-import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
-import io.github.projectunified.minelib.scheduler.common.task.Task;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,7 +104,7 @@ public class SpawnerRangeChecker implements Listener {
         stopSpawnerTask(spawner);
 
         // Start new task
-        BukkitTask task = (BukkitTask) GlobalScheduler.get(plugin).runTimer(() -> {
+        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!spawner.getSpawnerStop()) {
                 spawnerManager.spawnLoot(spawner);
             }

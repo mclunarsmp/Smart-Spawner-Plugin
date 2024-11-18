@@ -72,7 +72,7 @@ messages:
     prefix: true
     type: CHAT
     sound: block.beacon.activate
-  
+
   entity-spawner-placed:
     message: "&#d6e7edThis spawner is &#3287A9not activated&#d6e7ed! Mobs will spawn naturally."
     prefix: true
@@ -106,6 +106,27 @@ messages:
     message: "&c[!] Required &#3287A9Silk Touch&c to break this spawner!"
     prefix: false
     type: ACTION_BAR
+    sound: block.note_block.pling
+
+  #---------------------------------------------------
+  # Selling Items from Spawner
+  #---------------------------------------------------
+  sell-all:
+    message: "&#d6e7edYou sold a total of &#3287A9%amount% items&#d6e7ed for&a %price%$ &#d6e7ed!"
+    prefix: true
+    type: CHAT
+    sound: block.note_block.bell
+
+  no-items:
+    message: "&cThere are no items to sell in the spawner."
+    prefix: true
+    type: CHAT
+    sound: block.note_block.pling
+
+  no-sellable-items:
+    message: "&cNo items can be sold from this spawner."
+    prefix: true
+    type: CHAT
     sound: block.note_block.pling
 
   #---------------------------------------------------
@@ -153,6 +174,18 @@ messages:
     type: CHAT
     sound: block.note_block.pling
 
+  invalid-spawner:
+    message: "&cInvalid spawner type!"
+    prefix: true
+    type: CHAT
+    sound: block.note_block.pling
+
+  different-type:
+    message: "&cYou can only stack spawners of the same type!"
+    prefix: true
+    type: CHAT
+    sound: block.note_block.pling
+
   #---------------------------------------------------
   # Spawner Experience Collection
   #---------------------------------------------------
@@ -194,6 +227,21 @@ messages:
 
   take-all-items:
     message: "&#d6e7edSuccessfully taken &#3287A9%amount%&#d6e7ed items!"
+    prefix: true
+    type: CHAT
+    sound: block.note_block.chime
+
+  #---------------------------------------------------
+  # Hopper Interaction
+  #---------------------------------------------------
+  hopper-paused:
+    message: "&cHopper has been paused while interacting with the spawner!"
+    prefix: true
+    type: CHAT
+    sound: block.note_block.pling
+
+  hopper-resumed:
+    message: "&aHopper has been resumed!"
     prefix: true
     type: CHAT
     sound: block.note_block.chime
@@ -291,9 +339,18 @@ navigation-button:
       &#81d4faClick to go to page %target_page%
 
 page-indicator:
-  name: "&#f4d842Page %current_page%/&#f4d842%total_pages%"
+  name: "&#ffd700Page [%current_page%/&#ffd700%total_pages%]"
   lore: |
-    &#f4d842Total slots: %total_slots%
+    &7Total Items: &f%current_items%&7/&f%max_slots%
+
+shop-page-indicator:
+  name: "&#ffd700Page [%current_page%/&#ffd700%total_pages%]"
+  lore: |
+    
+    &8▪ &#ffd700Total Items: &f%current_items%&7/&f%max_slots%
+    &8▪ &#ffd700Storage: &a%percent_storage%&a%&f full
+    
+    &#ffd700➜ &7Click to sell all items in storage
 
 return-button:
   name: "&#ff6b6b Return to Main Menu"
@@ -314,7 +371,7 @@ equipment-toggle:
 #---------------------------------------------------
 command:
   reload:
-    usage: "&cUsage: /smartspawner reload [loot]"
+    usage: "&cUsage: /smartspawner reload"
     success: "&aPlugin reloaded successfully!"
     loot-success: "&aLoot configuration reloaded successfully!"
     error: "&cError reloading plugin. Check console for details."

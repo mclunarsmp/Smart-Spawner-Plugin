@@ -5,11 +5,9 @@ import me.nighter.smartSpawner.utils.SpawnerData;
 import me.nighter.smartSpawner.managers.SpawnerManager;
 import me.nighter.smartSpawner.managers.ConfigManager;
 import me.nighter.smartSpawner.managers.LanguageManager;
-
-import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
-
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -30,18 +28,21 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class SpawnerBreakHandler implements Listener {
     private final SmartSpawner plugin;
     private final ConfigManager configManager;
     private final LanguageManager languageManager;
     private final SpawnerManager spawnerManager;
+    private final HopperHandler hopperHandler;
 
     public SpawnerBreakHandler(SmartSpawner plugin) {
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
         this.languageManager = plugin.getLanguageManager();
         this.spawnerManager = plugin.getSpawnerManager();
+        this.hopperHandler = plugin.getHopperHandler();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -78,6 +79,13 @@ public class SpawnerBreakHandler implements Listener {
         } else {
             handleSpawnerBreak(block, spawner, player);
             event.setCancelled(true);
+        }
+
+        Block blockBelow = event.getBlock().getRelative(BlockFace.DOWN);
+        if (blockBelow.getType() == Material.HOPPER) {
+            if (hopperHandler != null) {
+                hopperHandler.stopHopperTask(blockBelow.getLocation());
+            }
         }
     }
 
@@ -308,9 +316,57 @@ public class SpawnerBreakHandler implements Listener {
         placedSpawner.setSpawnedType(storedEntity);
         placedSpawner.update();
 
-        languageManager.sendMessage(player, "messages.entity-spawner-placed");
+        // Handle spawner activation
+        if (configManager.getActivateOnPlace()) {
+            createNewSpawnerWithType(block, player, storedEntity);
+        } else {
+            languageManager.sendMessage(player, "messages.entity-spawner-placed");
+        }
+
+        if (configManager.isHopperEnabled()) {
+            // Check for hopper below and start hopper task
+            Block blockBelow = block.getRelative(BlockFace.DOWN);
+            if (blockBelow.getType() == Material.HOPPER) {
+                if (hopperHandler != null) {
+                    hopperHandler.startHopperTask(blockBelow.getLocation(), block.getLocation());
+                }
+            }
+        }
+
         // Debug message
         configManager.debug("Player " + player.getName() + " placed " + storedEntity + " spawner at " + block.getLocation());
+    }
+
+    private void createNewSpawnerWithType(Block block, Player player, EntityType entityType) {
+        String newSpawnerId = UUID.randomUUID().toString().substring(0, 8);
+
+        // Use placed entity type or fall back to default if null
+        EntityType finalEntityType = (entityType != null && entityType != EntityType.UNKNOWN)
+                ? entityType
+                : configManager.getDefaultEntityType();
+
+        // Create new spawner with specific entity type
+        SpawnerData spawner = new SpawnerData(newSpawnerId, block.getLocation(), finalEntityType, plugin);
+        spawner.setSpawnerActive(true);
+
+        // Creature spawner block
+        CreatureSpawner cs = (CreatureSpawner) block.getState();
+        cs.setSpawnedType(finalEntityType);
+        cs.update();
+
+        // Add to manager and save
+        spawnerManager.addSpawner(newSpawnerId, spawner);
+        spawnerManager.saveSpawnerData();
+
+        // Visual effect
+        block.getWorld().spawnParticle(
+                Particle.SPELL_WITCH,
+                block.getLocation().clone().add(0.5, 0.5, 0.5),
+                50, 0.5, 0.5, 0.5, 0
+        );
+
+        languageManager.sendMessage(player, "messages.activated");
+        configManager.debug("Created new spawner with ID: " + newSpawnerId + " at " + block.getLocation());
     }
 
     private void cleanupSpawner(Block block, SpawnerData spawner, Player player) {
@@ -318,7 +374,7 @@ public class SpawnerBreakHandler implements Listener {
         block.setType(Material.AIR);
         spawnerManager.removeSpawner(spawner.getSpawnerId());
 
-        GlobalScheduler.get(plugin).run( () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             spawnerManager.saveSpawnerData();
             configManager.debug("Player " + player.getName() +
                     " broke spawner with ID: " + spawner.getSpawnerId());

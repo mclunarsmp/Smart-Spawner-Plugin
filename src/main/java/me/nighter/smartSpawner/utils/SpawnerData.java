@@ -3,8 +3,8 @@ package me.nighter.smartSpawner.utils;
 import me.nighter.smartSpawner.SmartSpawner;
 import me.nighter.smartSpawner.managers.ConfigManager;
 import me.nighter.smartSpawner.managers.LanguageManager;
-
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class SpawnerData {
     private final SmartSpawner plugin;
-    private String spawnerId;
+    private final String spawnerId;
     private Location spawnerLocation;
     private Integer spawnerExp;
     private Boolean spawnerActive;

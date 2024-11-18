@@ -3,8 +3,12 @@ package me.nighter.smartSpawner;
 import me.nighter.smartSpawner.commands.ReloadCommand;
 import me.nighter.smartSpawner.listeners.*;
 import me.nighter.smartSpawner.managers.*;
+import me.nighter.smartSpawner.hooks.EconomyShopGUI;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 public class SmartSpawner extends JavaPlugin {
@@ -21,6 +25,9 @@ public class SmartSpawner extends JavaPlugin {
     private SpawnerBreakHandler spawnerBreakHandler;
     private GUIClickHandler guiClickHandler;
     private SpawnerExplosionListener spawnerExplosionListener;
+    private EconomyShopGUI shopIntegration;
+    private boolean isEconomyShopGUI = false;
+    private HopperHandler hopperHandler;
 
     @Override
     public void onEnable() {
@@ -35,15 +42,16 @@ public class SmartSpawner extends JavaPlugin {
         spawnerBreakHandler = new SpawnerBreakHandler(this);
         spawnerStackHandler = new SpawnerStackHandler(this);
         guiClickHandler = new GUIClickHandler(this);
-        updateChecker = new UpdateChecker(this, 120743);
-        try {
-            FloodgateApi api = FloodgateApi.getInstance();
-            if (api != null) {
-                getLogger().info("Floodgate detected, enabling Floodgate support");
-            }
-        } catch (NoClassDefFoundError | NullPointerException e) {
-            getLogger().info("Floodgate not detected, continuing without it");
+        if (configManager.isHopperEnabled())
+        {
+            hopperHandler = new HopperHandler(this);
+            hopperHandler.checkAllHoppers();
+        } else {
+            getLogger().info("Hopper integration is disabled by configuration");
+            hopperHandler = null;
         }
+        updateChecker = new UpdateChecker(this, 120743);
+        checkDependencies();
 
         // Load configs
         spawnerManager.loadSpawnerData();
@@ -68,6 +76,49 @@ public class SmartSpawner extends JavaPlugin {
         pm.registerEvents(new SpawnerExplosionListener(this), this);
     }
 
+    private void checkDependencies() {
+        // Check Floodgate
+        try {
+            FloodgateApi floodgateApi = FloodgateApi.getInstance();
+            if (floodgateApi != null) {
+                getLogger().info("Floodgate integration enabled successfully!");
+            }
+        } catch (NoClassDefFoundError | NullPointerException e) {
+            getLogger().info("Floodgate not detected, continuing without it");
+        }
+
+        ConfigManager.ShopType shopType = configManager.getShopType();
+
+        switch (shopType) {
+            case ECONOMY_SHOP_GUI_PREMIUM:
+                Plugin premiumShop = Bukkit.getPluginManager().getPlugin("EconomyShopGUI-Premium");
+                if (premiumShop != null) {
+                    this.shopIntegration = new EconomyShopGUI(this);
+                    isEconomyShopGUI = true;
+                    getLogger().info("EconomyShopGUI Premium integration enabled!");
+                } else {
+                    getLogger().warning("EconomyShopGUI-Premium not found but configured. Sell features will be disabled.");
+                }
+                break;
+
+            case ECONOMY_SHOP_GUI:
+                Plugin basicShop = Bukkit.getPluginManager().getPlugin("EconomyShopGUI");
+                if (basicShop != null) {
+                    this.shopIntegration = new EconomyShopGUI(this);
+                    isEconomyShopGUI = true;
+                    getLogger().info("EconomyShopGUI integration enabled!");
+                } else {
+                    getLogger().warning("EconomyShopGUI not found but configured. Sell features will be disabled.");
+                }
+                break;
+
+            case DISABLED:
+            default:
+                getLogger().info("Shop integration is disabled by configuration");
+                break;
+        }
+    }
+
     @Override
     public void onDisable() {
         if (spawnerManager != null) {
@@ -87,6 +138,9 @@ public class SmartSpawner extends JavaPlugin {
 
         if (updateChecker != null) {
             updateChecker.shutdown();
+        }
+        if (hopperHandler != null) {
+            hopperHandler.cleanup();
         }
 
         SpawnerHeadManager.clearCache();
@@ -141,5 +195,25 @@ public class SmartSpawner extends JavaPlugin {
         if (updateChecker.hasUpdate()) {
             getLogger().info("New version available: " + updateChecker.getLatestVersion());
         }
+    }
+
+    public HopperHandler getHopperHandler() {
+        return hopperHandler;
+    }
+
+    public SpawnerLootManager getSpawnerLootManager() {
+        return lootManager;
+    }
+
+    public EconomyShopGUI getShopIntegration() {
+        return shopIntegration;
+    }
+
+    public boolean isEconomyShopGUI() {
+        return isEconomyShopGUI;
+    }
+
+    public BukkitTask runTaskAsync(Runnable runnable) {
+        return this.getServer().getScheduler().runTaskAsynchronously(this, runnable);
     }
 }

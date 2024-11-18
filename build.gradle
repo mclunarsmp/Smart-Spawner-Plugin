@@ -3,11 +3,11 @@ plugins {
 }
 
 group = 'me.nighter'
-version = '1.0.2'
+version = '1.1.1'
 
 repositories {
     mavenCentral()
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+    // PaperMC
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
@@ -16,10 +16,13 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    // Floodgate
     maven {
         name = "opencollabRepositoryMain"
         url = "https://repo.opencollab.dev/main"
     }
+    // EconomyShopGUI
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -27,18 +30,7 @@ dependencies {
     compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")
     implementation 'net.kyori:adventure-api:4.14.0'
     implementation 'net.kyori:adventure-text-minimessage:4.14.0'
-    implementation("io.github.projectunified:minelib-util:1.2.5")
-    implementation("io.github.projectunified:minelib-scheduler-global:1.2.5")
-    implementation("io.github.projectunified:minelib-scheduler-entity:1.2.5")
-    implementation("io.github.projectunified:minelib-scheduler-async:1.2.5")
-    implementation("io.github.projectunified:minelib-util-subcommand:1.2.5")
-    implementation("io.github.projectunified:minelib-scheduler-region:1.2.5")
-    implementation("io.github.projectunified:minelib-plugin-command:1.2.5")
-    implementation("io.github.projectunified:minelib-scheduler:1.2.5")
-    implementation("io.github.projectunified:block-util:4.1.0")
-    implementation("io.github.projectunified:minelib:1.2.5")
-
-
+    implementation 'com.github.Gypopo:EconomyShopGUI-API:1.7.2'
 }
 
 def targetJavaVersion = 21
@@ -67,4 +59,3 @@ processResources {
         expand props
     }
 }
-
